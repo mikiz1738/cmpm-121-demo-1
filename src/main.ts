@@ -41,12 +41,30 @@ booCountDisplay.style.left = "10%";
 booCountDisplay.style.transform = "translate(-50%, -50%)";
 booCountDisplay.style.fontSize = "30px";
 
-//anonymous function call that increments booCount 
-setInterval(() => {
+//anonymous function call that increments booCount
+// requestAnimationFrame(() => {
+//   booCount++;
+//   //display current Boo count
+//   booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
+// });
+let prevStamp = 0;
+function updateFrame(timestamp: number) {
+  //calc time since last update
+  const elapsed = timestamp - prevStamp;
+
+  //if more than 1 sec passed, update counter
+  if (elapsed >= 1000) {
     booCount++;
-    //display current Boo count
-    booCountDisplay.innerHTML = `Boo Count: ${booCount}`; 
-}, 1000);
+    booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
+    prevStamp = timestamp;
+  }
+
+  //request next frame
+  requestAnimationFrame(updateFrame);
+}
+
+//start animation loop
+requestAnimationFrame(updateFrame);
 
 // Handle button click event
 button.addEventListener("click", () => {
