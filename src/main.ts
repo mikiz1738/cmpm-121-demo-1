@@ -11,69 +11,73 @@ app.append(header);
 
 // Create a text element to display the number of clicks
 const booCountDisplay = document.createElement("div");
-booCountDisplay.innerHTML = "Clicks: 0"; // Initial click count
-booCountDisplay.innerHTML = "Boo Count: 0";
+booCountDisplay.innerHTML = "Boo Count: 0"; // Initial click count
+app.append(booCountDisplay);
 
-//boo counter
+// Boo counter and initial growth rate
 let booCount = 0;
+let prevStamp = 0;
+let growthRate = 0; // Growth rate starts at zero
 
-// Create a button element
-const button = document.createElement("button");
+// Create a buttonClick element
+const buttonClick = document.createElement("button");
+buttonClick.innerHTML = "😨";
+app.append(buttonClick);
 
-// Set the inner HTML of the button
-button.innerHTML = "😨";
+// Create a purchasable upgrade button
+const purchasableUpgrade = document.createElement("button");
+purchasableUpgrade.innerHTML = "Purchase Growth +1 (Cost: 10)";
+purchasableUpgrade.disabled = true; // Starts disabled
+app.append(purchasableUpgrade);
 
-// Append the button and booCountDisplay to the body
-document.body.append(button);
-document.body.append(booCountDisplay);
-
-//change the formatting on button
-button.style.position = "absolute";
-button.style.top = "60%"; // Moves the button 60% from the top of the viewport
-button.style.left = "50%"; // Moves the button 50% from the left of the viewport
-button.style.transform = "translate(-50%, -50%)"; // Moves the button to perfectly center
-button.style.fontSize = "30px";
-
-//change the formatting on booCountDisplay
 booCountDisplay.style.position = "absolute";
 booCountDisplay.style.top = "5%";
 booCountDisplay.style.left = "10%";
 booCountDisplay.style.transform = "translate(-50%, -50%)";
 booCountDisplay.style.fontSize = "30px";
 
-//anonymous function call that increments booCount
-// requestAnimationFrame(() => {
-//   booCount++;
-//   //display current Boo count
-//   booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
-// });
-let prevStamp = 0;
-function updateFrame(timestamp: number) {
-  //calc time since last update
+// Handle buttonClick click event
+buttonClick.addEventListener("click", () => {
+  booCount++;
+  buttonClick.innerHTML = buttonClick.innerHTML === "😨" ? "😱" : "😨";
+  booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
+
+  // Enable the purchasable upgrade button if the player has 10 or more units
+  if (booCount >= 10) {
+    purchasableUpgrade.disabled = false;
+  }
+});
+
+// Handle purchasable upgrade button click event
+purchasableUpgrade.addEventListener("click", () => {
+  if (booCount >= 10) {
+    booCount -= 10; // Deduct 10 units from the counter
+    growthRate++;    // Increment growth rate by 1
+    purchasableUpgrade.disabled = true; // Disable after purchase if they can't afford again
+    booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
+  }
+});
+
+// Animation loop to add growth over time
+function updateGrowth(timestamp: number) {
   const elapsed = timestamp - prevStamp;
 
-  //if more than 1 sec passed, update counter
   if (elapsed >= 1000) {
-    booCount++;
+    booCount += growthRate;
     booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
     prevStamp = timestamp;
   }
 
-  //request next frame
-  requestAnimationFrame(updateFrame);
+  // Enable the purchasable upgrade button if the player has 10 or more units
+  if (booCount >= 10) {
+    purchasableUpgrade.disabled = false;
+  } else {
+    purchasableUpgrade.disabled = true;
+  }
+
+  requestAnimationFrame(updateGrowth);
 }
 
-//start animation loop
-requestAnimationFrame(updateFrame);
-
-// Handle button click event
-button.addEventListener("click", () => {
-  // Change the innerHTML of the button when clicked
-  booCount++;
-  if (button.innerHTML == "😨") {
-    button.innerHTML = "😱";
-  } else {
-    button.innerHTML = "😨";
-  }
-  booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
-});
+// Start the growth update loop
+requestAnimationFrame(updateGrowth);
+  
