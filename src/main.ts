@@ -2,74 +2,76 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "Boo!";
+const gameName = "Boo! Haunted Clicker";
 document.title = gameName;
 
 const header = document.createElement("h1");
 header.innerHTML = gameName;
 app.append(header);
 
-const booCountDisplay = document.createElement("div");
-booCountDisplay.innerHTML = "Boo Count: 0";
-app.append(booCountDisplay);
+// Display for ghost count
+const ghostCountDisplay = document.createElement("div");
+ghostCountDisplay.innerHTML = "Ghost Count: 0"; // Initial count
+app.append(ghostCountDisplay);
 
-const growthRateDisplay = document.createElement("div");
-growthRateDisplay.innerHTML = "Growth Rate: 0.0 units/sec";
-app.append(growthRateDisplay);
+const hauntingRateDisplay = document.createElement("div");
+hauntingRateDisplay.innerHTML = "Haunting Rate: 0.0 ghosts/sec"; // Initial haunting rate
+app.append(hauntingRateDisplay);
 
-const itemCountDisplayA = document.createElement("div");
-const itemCountDisplayB = document.createElement("div");
-const itemCountDisplayC = document.createElement("div");
+// Status displays for each purchased item
+const itemCountDisplaySpecter = document.createElement("div");
+const itemCountDisplayPhantom = document.createElement("div");
+const itemCountDisplayWraith = document.createElement("div");
 
-itemCountDisplayA.innerHTML = "Item A: 0 purchased";
-itemCountDisplayB.innerHTML = "Item B: 0 purchased";
-itemCountDisplayC.innerHTML = "Item C: 0 purchased";
+itemCountDisplaySpecter.innerHTML = "Specter: 0 purchased";
+itemCountDisplayPhantom.innerHTML = "Phantom: 0 purchased";
+itemCountDisplayWraith.innerHTML = "Wraith: 0 purchased";
 
-itemCountDisplayA.style.position = "absolute";
-itemCountDisplayA.style.top = "60%";
-itemCountDisplayA.style.left = "60%";
+itemCountDisplaySpecter.style.position = "absolute";
+itemCountDisplaySpecter.style.top = "60%";
+itemCountDisplaySpecter.style.left = "60%";
 
-itemCountDisplayB.style.position = "absolute";
-itemCountDisplayB.style.top = "65%";
-itemCountDisplayB.style.left = "60%";
+itemCountDisplayPhantom.style.position = "absolute";
+itemCountDisplayPhantom.style.top = "65%";
+itemCountDisplayPhantom.style.left = "60%";
 
-itemCountDisplayC.style.position = "absolute";
-itemCountDisplayC.style.top = "70%";
-itemCountDisplayC.style.left = "60%";
+itemCountDisplayWraith.style.position = "absolute";
+itemCountDisplayWraith.style.top = "70%";
+itemCountDisplayWraith.style.left = "60%";
 
-app.append(itemCountDisplayA, itemCountDisplayB, itemCountDisplayC);
+app.append(itemCountDisplaySpecter, itemCountDisplayPhantom, itemCountDisplayWraith);
 
-let booCount = 0;
+let ghostCount = 0;
 let prevStamp = 0;
-let growthRate = 0;
-let purchasedA = 0;
-let purchasedB = 0;
-let purchasedC = 0;
+let hauntingRate = 0;
+let purchasedSpecter = 0;
+let purchasedPhantom = 0;
+let purchasedWraith = 0;
 
-const baseCosts = { A: 10, B: 100, C: 1000 };
-const growthRates = { A: 0.1, B: 2.0, C: 50.0 };
-let currentCostA = baseCosts.A;
-let currentCostB = baseCosts.B;
-let currentCostC = baseCosts.C;
+const baseCosts = { Specter: 10, Phantom: 100, Wraith: 1000 };
+const growthRates = { Specter: 0.1, Phantom: 2.0, Wraith: 50.0 };
+let currentCostSpecter = baseCosts.Specter;
+let currentCostPhantom = baseCosts.Phantom;
+let currentCostWraith = baseCosts.Wraith;
 
 const buttonClick = document.createElement("button");
-buttonClick.innerHTML = "😨";
+buttonClick.innerHTML = "👻";
 app.append(buttonClick);
 
-const buttonUpgradeA = document.createElement("button");
-buttonUpgradeA.innerHTML = `Purchase A (Cost: ${currentCostA.toFixed(2)}, +0.1 units/sec)`;
-buttonUpgradeA.disabled = true;
-app.append(buttonUpgradeA);
+const buttonUpgradeSpecter = document.createElement("button");
+buttonUpgradeSpecter.innerHTML = `Summon Specter (Cost: ${currentCostSpecter.toFixed(2)}, +0.1 ghosts/sec)`;
+buttonUpgradeSpecter.disabled = true;
+app.append(buttonUpgradeSpecter);
 
-const buttonUpgradeB = document.createElement("button");
-buttonUpgradeB.innerHTML = `Purchase B (Cost: ${currentCostB.toFixed(2)}, +2.0 units/sec)`;
-buttonUpgradeB.disabled = true;
-app.append(buttonUpgradeB);
+const buttonUpgradePhantom = document.createElement("button");
+buttonUpgradePhantom.innerHTML = `Summon Phantom (Cost: ${currentCostPhantom.toFixed(2)}, +2.0 ghosts/sec)`;
+buttonUpgradePhantom.disabled = true;
+app.append(buttonUpgradePhantom);
 
-const buttonUpgradeC = document.createElement("button");
-buttonUpgradeC.innerHTML = `Purchase C (Cost: ${currentCostC.toFixed(2)}, +50 units/sec)`;
-buttonUpgradeC.disabled = true;
-app.append(buttonUpgradeC);
+const buttonUpgradeWraith = document.createElement("button");
+buttonUpgradeWraith.innerHTML = `Summon Wraith (Cost: ${currentCostWraith.toFixed(2)}, +50 ghosts/sec)`;
+buttonUpgradeWraith.disabled = true;
+app.append(buttonUpgradeWraith);
 
 function styleButton(button: HTMLElement, top: string, left: string, fontSize: string) {
   button.style.position = "absolute";
@@ -79,27 +81,29 @@ function styleButton(button: HTMLElement, top: string, left: string, fontSize: s
   button.style.fontSize = fontSize;
 }
 
-styleButton(buttonClick, "60%", "35%", "30px");
-styleButton(buttonUpgradeA, "70%", "40%", "20px");
-styleButton(buttonUpgradeB, "80%", "40%", "20px");
-styleButton(buttonUpgradeC, "90%", "40%", "20px");
+styleButton(buttonClick, "60%", "35%", "50px");
+styleButton(buttonUpgradeSpecter, "70%", "40%", "20px");
+styleButton(buttonUpgradePhantom, "80%", "40%", "20px");
+styleButton(buttonUpgradeWraith, "90%", "40%", "20px");
 
-booCountDisplay.style.position = "absolute";
-booCountDisplay.style.top = "5%";
-booCountDisplay.style.left = "10%";
-booCountDisplay.style.transform = "translate(-50%, -50%)";
-booCountDisplay.style.fontSize = "30px";
+ghostCountDisplay.style.position = "absolute";
+ghostCountDisplay.style.top = "5%";
+ghostCountDisplay.style.left = "10%";
+ghostCountDisplay.style.transform = "translate(-50%, -50%)";
+ghostCountDisplay.style.fontSize = "30px";
 
+// Main button click event
 buttonClick.addEventListener("click", () => {
-  booCount++;
-  buttonClick.innerHTML = buttonClick.innerHTML === "😨" ? "😱" : "😨";
-  booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
+  ghostCount++;
+  buttonClick.innerHTML = buttonClick.innerHTML === "👻" ? "👺" : "👻";
+  ghostCountDisplay.innerHTML = `Ghost Count: ${ghostCount}`;
 
-  buttonUpgradeA.disabled = booCount < currentCostA;
-  buttonUpgradeB.disabled = booCount < currentCostB;
-  buttonUpgradeC.disabled = booCount < currentCostC;
+  buttonUpgradeSpecter.disabled = ghostCount < currentCostSpecter;
+  buttonUpgradePhantom.disabled = ghostCount < currentCostPhantom;
+  buttonUpgradeWraith.disabled = ghostCount < currentCostWraith;
 });
 
+// Upgrade purchase function
 function purchaseUpgrade(
   button: HTMLElement,
   currentCost: number,
@@ -108,57 +112,58 @@ function purchaseUpgrade(
   itemCountDisplay: HTMLElement,
   itemLabel: string
 ) {
-  booCount -= currentCost;
-  growthRate += growth;
+  ghostCount -= currentCost;
+  hauntingRate += growth;
   purchased++;
   currentCost *= 1.15;
 
-  booCountDisplay.innerHTML = `Boo Count: ${booCount}`;
-  growthRateDisplay.innerHTML = `Growth Rate: ${growthRate.toFixed(1)} units/sec`;
+  ghostCountDisplay.innerHTML = `Ghost Count: ${ghostCount}`;
+  hauntingRateDisplay.innerHTML = `Haunting Rate: ${hauntingRate.toFixed(1)} ghosts/sec`;
   itemCountDisplay.innerHTML = `${itemLabel}: ${purchased} purchased`;
-  button.innerHTML = `Purchase ${itemLabel} (Cost: ${currentCost.toFixed(2)}, +${growth} units/sec)`;
+  button.innerHTML = `Summon ${itemLabel} (Cost: ${currentCost.toFixed(2)}, +${growth} ghosts/sec)`;
 
   return { newCost: currentCost, newPurchased: purchased };
 }
 
-buttonUpgradeA.addEventListener("click", () => {
-  if (booCount >= currentCostA) {
-    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradeA, currentCostA, growthRates.A, purchasedA, itemCountDisplayA, "A");
-    currentCostA = newCost;
-    purchasedA = newPurchased;
+buttonUpgradeSpecter.addEventListener("click", () => {
+  if (ghostCount >= currentCostSpecter) {
+    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradeSpecter, currentCostSpecter, growthRates.Specter, purchasedSpecter, itemCountDisplaySpecter, "Specter");
+    currentCostSpecter = newCost;
+    purchasedSpecter = newPurchased;
   }
 });
 
-buttonUpgradeB.addEventListener("click", () => {
-  if (booCount >= currentCostB) {
-    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradeB, currentCostB, growthRates.B, purchasedB, itemCountDisplayB, "B");
-    currentCostB = newCost;
-    purchasedB = newPurchased;
+buttonUpgradePhantom.addEventListener("click", () => {
+  if (ghostCount >= currentCostPhantom) {
+    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradePhantom, currentCostPhantom, growthRates.Phantom, purchasedPhantom, itemCountDisplayPhantom, "Phantom");
+    currentCostPhantom = newCost;
+    purchasedPhantom = newPurchased;
   }
 });
 
-buttonUpgradeC.addEventListener("click", () => {
-  if (booCount >= currentCostC) {
-    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradeC, currentCostC, growthRates.C, purchasedC, itemCountDisplayC, "C");
-    currentCostC = newCost;
-    purchasedC = newPurchased;
+buttonUpgradeWraith.addEventListener("click", () => {
+  if (ghostCount >= currentCostWraith) {
+    const { newCost, newPurchased } = purchaseUpgrade(buttonUpgradeWraith, currentCostWraith, growthRates.Wraith, purchasedWraith, itemCountDisplayWraith, "Wraith");
+    currentCostWraith = newCost;
+    purchasedWraith = newPurchased;
   }
 });
 
-function updateGrowth(timestamp: number) {
+// Animation loop for haunting rate
+function updateHaunting(timestamp: number) {
   const elapsed = timestamp - prevStamp;
 
   if (elapsed >= 1000) {
-    booCount += growthRate;
-    booCountDisplay.innerHTML = `Boo Count: ${Math.floor(booCount)}`;
+    ghostCount += hauntingRate;
+    ghostCountDisplay.innerHTML = `Ghost Count: ${Math.floor(ghostCount)}`;
     prevStamp = timestamp;
   }
 
-  buttonUpgradeA.disabled = booCount < currentCostA;
-  buttonUpgradeB.disabled = booCount < currentCostB;
-  buttonUpgradeC.disabled = booCount < currentCostC;
+  buttonUpgradeSpecter.disabled = ghostCount < currentCostSpecter;
+  buttonUpgradePhantom.disabled = ghostCount < currentCostPhantom;
+  buttonUpgradeWraith.disabled = ghostCount < currentCostWraith;
 
-  requestAnimationFrame(updateGrowth);
+  requestAnimationFrame(updateHaunting);
 }
 
-requestAnimationFrame(updateGrowth);
+requestAnimationFrame(updateHaunting);
