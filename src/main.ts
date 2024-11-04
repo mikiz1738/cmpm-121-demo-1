@@ -2,151 +2,144 @@ import "./style.css";
 
 const app: HTMLDivElement = document.querySelector("#app")!;
 
-const gameName = "Boo! Haunted Clicker";
-document.title = gameName;
+const GAME_NAME = "Boo! Haunted Clicker";
+document.title = GAME_NAME;
 
 const header = document.createElement("h1");
-header.innerHTML = gameName;
+header.innerHTML = GAME_NAME;
 app.append(header);
 
-// Display for ghost count and haunting rate
+// Display elements for ghost count and haunting rate
 const ghostCountDisplay = document.createElement("div");
-ghostCountDisplay.innerHTML = "Ghost Count: 0"; // Initial count
-app.append(ghostCountDisplay);
-
 const hauntingRateDisplay = document.createElement("div");
-hauntingRateDisplay.innerHTML = "Haunting Rate: 0.0 ghosts/sec"; // Initial haunting rate
-app.append(hauntingRateDisplay);
 
-// Ghost game variables
+ghostCountDisplay.innerHTML = "Ghost Count: 0";
+hauntingRateDisplay.innerHTML = "Haunting Rate: 0.0 ghosts/sec";
+
+app.append(ghostCountDisplay, hauntingRateDisplay);
+
+// Game state
 let ghostCount = 0;
 let hauntingRate = 0;
-let prevStamp = 0;
+let lastUpdateTimestamp = 0;
 
-// Define available items as an array of objects for flexibility
-const availableItems = [
-  {
-    name: "Specter",
-    cost: 10,
-    rateIncrease: 0.1,
-    currentCost: 10,
-    purchased: 0,
-    description: "A fleeting spirit to slowly add to your ghostly numbers.",
-    displayElement: document.createElement("div"),
-    buttonElement: document.createElement("button"),
-  },
-  {
-    name: "Phantom",
-    cost: 100,
-    rateIncrease: 2.0,
-    currentCost: 100,
-    purchased: 0,
-    description: "An elusive soul that brings a stronger, steady haunt.",
-    displayElement: document.createElement("div"),
-    buttonElement: document.createElement("button"),
-  },
-  {
-    name: "Wraith",
-    cost: 1000,
-    rateIncrease: 50.0,
-    currentCost: 1000,
-    purchased: 0,
-    description: "A powerful apparition that amplifies your haunting power.",
-    displayElement: document.createElement("div"),
-    buttonElement: document.createElement("button"),
-  },
-  {
-    name: "Poltergeist",
-    cost: 5000,
-    rateIncrease: 200.0,
-    currentCost: 5000,
-    purchased: 0,
-    description: "A chaotic spirit that adds an intense haunting presence.",
-    displayElement: document.createElement("div"),
-    buttonElement: document.createElement("button"),
-  },
-  {
-    name: "Banshee",
-    cost: 20000,
-    rateIncrease: 1000.0,
-    currentCost: 20000,
-    purchased: 0,
-    description: "An eerie wailer whose cries bring waves of new ghosts.",
-    displayElement: document.createElement("div"),
-    buttonElement: document.createElement("button"),
-  },
+class GameItem {
+  name: string;
+  baseCost: number;
+  rateIncrease: number;
+  currentCost: number;
+  purchasedCount: number;
+  description: string;
+  displayElement: HTMLDivElement;
+  buttonElement: HTMLButtonElement;
+
+  constructor(name: string, cost: number, rateIncrease: number, description: string, index: number) {
+    this.name = name;
+    this.baseCost = cost;
+    this.rateIncrease = rateIncrease;
+    this.currentCost = cost;
+    this.purchasedCount = 0;
+    this.description = description;
+
+    this.displayElement = this.createDisplayElement(index);
+    this.buttonElement = this.createButtonElement(index);
+  }
+
+  createDisplayElement(index: number): HTMLDivElement {
+    const display = document.createElement("div");
+    display.innerHTML = `${this.name}: ${this.purchasedCount} purchased`;
+    display.style.position = "absolute";
+    display.style.top = `${60 + index * 5}%`;
+    display.style.left = "75%";
+    app.append(display);
+    return display;
+  }
+
+  createButtonElement(index: number): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.innerHTML = this.getButtonText();
+    button.style.position = "absolute";
+    button.style.top = `${75 + index * 10}%`;
+    button.style.left = "40%";
+    button.style.transform = "translate(-50%, -50%)";
+    button.style.fontSize = "20px";
+    button.disabled = true;
+    app.append(button);
+
+    button.addEventListener("click", () => this.purchase());
+    return button;
+  }
+
+  getButtonText(): string {
+    return `Summon ${this.name} (Cost: ${this.currentCost.toFixed(2)}, +${this.rateIncrease} ghosts/sec) - ${this.description}`;
+  }
+
+  purchase(): void {
+    if (ghostCount >= this.currentCost) {
+      ghostCount -= this.currentCost;
+      hauntingRate += this.rateIncrease;
+      this.purchasedCount++;
+      this.currentCost *= 1.15;
+
+      updateDisplay();
+      this.updateElements();
+    }
+  }
+
+  updateElements(): void {
+    this.displayElement.innerHTML = `${this.name}: ${this.purchasedCount} purchased`;
+    this.buttonElement.innerHTML = this.getButtonText();
+    this.buttonElement.disabled = ghostCount < this.currentCost;
+  }
+}
+
+// Initialize available items
+const gameItems = [
+  new GameItem("Specter", 10, 0.1, "A fleeting spirit to slowly add to your ghostly numbers.", 0),
+  new GameItem("Phantom", 100, 2.0, "An elusive soul that brings a stronger, steady haunt.", 1),
+  new GameItem("Wraith", 1000, 50.0, "A powerful apparition that amplifies your haunting power.", 2),
+  new GameItem("Poltergeist", 5000, 200.0, "A chaotic spirit that adds an intense haunting presence.", 3),
+  new GameItem("Banshee", 20000, 1000.0, "An eerie wailer whose cries bring waves of new ghosts.", 4),
 ];
 
-// Display each item’s information and button on the page
-availableItems.forEach((item, index) => {
-  // Configure and display item purchase status
-  item.displayElement.innerHTML = `${item.name}: ${item.purchased} purchased`;
-  item.displayElement.style.position = "absolute";
-  item.displayElement.style.top = `${60 + index * 5}%`;
-  item.displayElement.style.left = "75%";
-  app.append(item.displayElement);
+// Main ghost click button
+const ghostClickButton = document.createElement("button");
+ghostClickButton.innerHTML = "👻";
+ghostClickButton.style.position = "absolute";
+ghostClickButton.style.top = "60%";
+ghostClickButton.style.left = "35%";
+ghostClickButton.style.transform = "translate(-50%, -50%)";
+ghostClickButton.style.fontSize = "50px";
+app.append(ghostClickButton);
 
-  // Configure and display item purchase button
-  item.buttonElement.innerHTML = `Summon ${item.name} (Cost: ${item.currentCost.toFixed(2)}, +${item.rateIncrease} ghosts/sec) - ${item.description}`;
-  item.buttonElement.style.position = "absolute";
-  item.buttonElement.style.top = `${75 + index * 10}%`;
-  item.buttonElement.style.left = "40%";
-  item.buttonElement.style.transform = "translate(-50%, -50%)";
-  item.buttonElement.style.fontSize = "20px";
-  item.buttonElement.disabled = true;
-  app.append(item.buttonElement);
-
-  // Add click event for purchasing items
-  item.buttonElement.addEventListener("click", () => {
-    if (ghostCount >= item.currentCost) {
-      ghostCount -= item.currentCost;
-      hauntingRate += item.rateIncrease;
-      item.purchased++;
-      item.currentCost *= 1.15;
-
-      // Update displays after purchase
-      ghostCountDisplay.innerHTML = `Ghost Count: ${ghostCount}`;
-      hauntingRateDisplay.innerHTML = `Haunting Rate: ${hauntingRate.toFixed(1)} ghosts/sec`;
-      item.displayElement.innerHTML = `${item.name}: ${item.purchased} purchased`;
-      item.buttonElement.innerHTML = `Summon ${item.name} (Cost: ${item.currentCost.toFixed(2)}, +${item.rateIncrease} ghosts/sec) - ${item.description}`;
-    }
-  });
+ghostClickButton.addEventListener("click", () => {
+  ghostCount++;
+  updateDisplay();
+  updateButtonStates();
 });
 
-// Main ghost click button
-const buttonClick = document.createElement("button");
-buttonClick.innerHTML = "👻";
-buttonClick.style.position = "absolute";
-buttonClick.style.top = "60%";
-buttonClick.style.left = "35%";
-buttonClick.style.transform = "translate(-50%, -50%)";
-buttonClick.style.fontSize = "50px";
-app.append(buttonClick);
+function updateDisplay(): void {
+  ghostCountDisplay.innerHTML = `Ghost Count: ${Math.floor(ghostCount)}`;
+  hauntingRateDisplay.innerHTML = `Haunting Rate: ${hauntingRate.toFixed(1)} ghosts/sec`;
+}
 
-// Update ghost count and item availability on main click
-buttonClick.addEventListener("click", () => {
-  ghostCount++;
-  ghostCountDisplay.innerHTML = `Ghost Count: ${ghostCount}`;
-  availableItems.forEach((item) => {
+function updateButtonStates(): void {
+  gameItems.forEach((item) => {
     item.buttonElement.disabled = ghostCount < item.currentCost;
   });
-});
+}
 
 // Animation loop to update ghost count with haunting rate
-function updateHaunting(timestamp: number) {
-  const elapsed = timestamp - prevStamp;
+function updateHaunting(timestamp: number): void {
+  const elapsed = timestamp - lastUpdateTimestamp;
 
   if (elapsed >= 1000) {
     ghostCount += hauntingRate;
-    ghostCountDisplay.innerHTML = `Ghost Count: ${Math.floor(ghostCount)}`;
-    prevStamp = timestamp;
+    updateDisplay();
+    lastUpdateTimestamp = timestamp;
   }
 
-  // Enable or disable item buttons based on current ghost count
-  availableItems.forEach((item) => {
-    item.buttonElement.disabled = ghostCount < item.currentCost;
-  });
-
+  updateButtonStates();
   requestAnimationFrame(updateHaunting);
 }
 
