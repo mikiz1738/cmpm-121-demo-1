@@ -33,7 +33,13 @@ class GameItem {
   displayElement: HTMLDivElement;
   buttonElement: HTMLButtonElement;
 
-  constructor(name: string, cost: number, rateIncrease: number, description: string, index: number) {
+  constructor(
+    name: string,
+    cost: number,
+    rateIncrease: number,
+    description: string,
+    index: number,
+  ) {
     this.name = name;
     this.baseCost = cost;
     this.rateIncrease = rateIncrease;
@@ -95,11 +101,41 @@ class GameItem {
 
 // Initialize available items
 const gameItems = [
-  new GameItem("Specter", 10, 0.1, "A fleeting spirit to slowly add to your ghostly numbers.", 0),
-  new GameItem("Phantom", 100, 2.0, "An elusive soul that brings a stronger, steady haunt.", 1),
-  new GameItem("Wraith", 1000, 50.0, "A powerful apparition that amplifies your haunting power.", 2),
-  new GameItem("Poltergeist", 5000, 200.0, "A chaotic spirit that adds an intense haunting presence.", 3),
-  new GameItem("Banshee", 20000, 1000.0, "An eerie wailer whose cries bring waves of new ghosts.", 4),
+  new GameItem(
+    "Specter",
+    10,
+    0.1,
+    "A fleeting spirit to slowly add to your ghostly numbers.",
+    0,
+  ),
+  new GameItem(
+    "Phantom",
+    100,
+    2.0,
+    "An elusive soul that brings a stronger, steady haunt.",
+    1,
+  ),
+  new GameItem(
+    "Wraith",
+    1000,
+    50.0,
+    "A powerful apparition that amplifies your haunting power.",
+    2,
+  ),
+  new GameItem(
+    "Poltergeist",
+    5000,
+    200.0,
+    "A chaotic spirit that adds an intense haunting presence.",
+    3,
+  ),
+  new GameItem(
+    "Banshee",
+    20000,
+    1000.0,
+    "An eerie wailer whose cries bring waves of new ghosts.",
+    4,
+  ),
 ];
 
 // Main ghost click button
