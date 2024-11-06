@@ -19,7 +19,7 @@ class HauntedClickerGame {
 
   private ghostCountDisplay: HTMLDivElement | undefined;
   private hauntingRateDisplay: HTMLDivElement | undefined;
-  private ghostClickButton: HTMLButtonElement | undefined
+  private ghostClickButton: HTMLButtonElement | undefined;
   private gameItems: GameItem[] = [];
 
   private titleElement: HTMLTitleElement = document.querySelector("title")!; // Title element for wobble effect
@@ -32,6 +32,7 @@ class HauntedClickerGame {
     this.createItems();
     this.startAnimation();
     this.startWobbleAnimation(); // Start wobble effect for the title
+    this.startBackgroundColorChange();
   }
 
   private initUI() {
@@ -156,6 +157,19 @@ class HauntedClickerGame {
 
     wobbleTitle(); // Start wobble animation for the title
   }
+
+  private startBackgroundColorChange() {
+    let isDarkMode = true;
+    setInterval(() => {
+      if (isDarkMode) {
+        document.body.style.backgroundColor = "#242424"; // Dark background
+      } else {
+        document.body.style.backgroundColor = "#ffffff"; // Light background
+      }
+      isDarkMode = !isDarkMode; // Toggle the background color
+    }, 3000); // Change color every 3 seconds
+  }
+
 }
 
 class GameItem {
