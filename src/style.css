@@ -74,3 +74,28 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Wobble animation */
+@keyframes wobbleTitle {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Apply wobble effect to the title */
+.title-wobble {
+  display: inline-block;
+  animation: wobbleTitle 1s ease-in-out infinite;
+}
